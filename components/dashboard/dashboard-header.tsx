@@ -28,7 +28,7 @@ const STYLES = {
   buttons: {
     share:
       'text-center bg-sky-teal-45 py-1.5 lg:py-2 px-3 lg:px-4 rounded-2xl text-sm lg:text-base text-white focus:outline-none focus:ring-2 focus:ring-sky-teal-45 focus:ring-offset-2 transition-colors hover:bg-[#3a6b7a]',
-    more: 'bg-white p-1.5 lg:p-2 flex items-center border-[1.5px] border-muted-blue-20/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 transition-colors hover:bg-gray-50',
+    more: 'bg-white p-1.5 lg:p-2 flex items-center border-[1.5px] border-muted-blue-20/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-ocean-gray-16 focus:ring-offset-2 transition-colors hover:bg-gray-50',
   },
 } as const;
 
