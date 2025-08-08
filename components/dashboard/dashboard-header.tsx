@@ -111,15 +111,9 @@ const DashboardHeader = () => {
 
         <div className={STYLES.profiles.namesContainer}>
           {/* Desktop*/}
-          <div className='hidden lg:flex gap-x-1'>
+          <div className='hidden md:flex gap-x-1'>
             <span>Ava, Liam, Noah</span>
             <span>+12 others</span>
-          </div>
-
-          {/* Tablet */}
-          <div className='hidden md:flex lg:hidden gap-x-1'>
-            <span>Ava, Liam</span>
-            <span>+13 others</span>
           </div>
 
           {/* Mobile */}
