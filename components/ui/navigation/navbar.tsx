@@ -99,7 +99,7 @@ const Navbar = () => {
 							aria-label="User profile menu"
 						>
 							<Image
-								src="/profile.png"
+								src="/profile.svg"
 								alt="User profile"
 								width={40}
 								height={40}

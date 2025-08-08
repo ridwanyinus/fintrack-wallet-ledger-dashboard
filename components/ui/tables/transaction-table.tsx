@@ -1,8 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { mockTransactions } from "@/lib/data/mock-data";
 import SummaryCards from "@/components/dashboard/summary-cards";
+import { mockTransactions } from "@/lib/data/mock-data";
 import { formatCurrency, formatDate } from "@/lib/utils/formatters";
 
 type SortColumn = "date" | "amount";

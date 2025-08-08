@@ -1,6 +1,6 @@
 import { mockSummary } from "@/lib/data/mock-data";
-import SummaryCard from "../ui/cards/summary-card";
 import { formatCurrency } from "@/lib/utils/formatters";
+import SummaryCard from "../ui/cards/summary-card";
 
 const SUMMARY_CONFIG = [
 	{
