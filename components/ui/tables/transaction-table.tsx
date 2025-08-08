@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import SummaryCards from '@/components/dashboard/summary-cards';
 import { mockTransactions } from '@/lib/data/mock-data';
 import { formatCurrency, formatDate } from '@/lib/utils/formatters';
+import { cn } from '@/lib/utils/cn';
 
 type SortColumn = 'date' | 'amount';
 type SortOrder = 'asc' | 'desc';
@@ -86,16 +87,19 @@ const TransactionTable = () => {
     return `${TABLE_STYLES.typeIndicator.dot} ${type === 'Credit' ? TABLE_STYLES.typeIndicator.credit : TABLE_STYLES.typeIndicator.debit}`;
   };
 
-  const SortButton = ({ column, children, className = '' }: { column: SortColumn; children: React.ReactNode; className?: string }) => (
-    <button
-      type='button'
-      onClick={() => handleSort(column)}
-      className={`${TABLE_STYLES.sortButton} ${className}`}
-      aria-label={`Sort by ${column} ${sortBy === column && sortOrder === 'asc' ? 'descending' : 'ascending'}`}>
-      {children}
-      <Image src={getSortIcon(column)} alt='' width={10} height={7} aria-hidden='true' />
-    </button>
-  );
+  const SortButton = ({ column, children, className = '' }: { column: SortColumn; children: React.ReactNode; className?: string }) => {
+    const isActive = sortBy === column;
+    return (
+      <button
+        type='button'
+        onClick={() => handleSort(column)}
+        className={cn(TABLE_STYLES.sortButton, className, !isActive && 'focus:ring-0 focus:outline-none')}
+        aria-label={`Sort by ${column} ${isActive && sortOrder === 'asc' ? 'descending' : 'ascending'}`}>
+        {children}
+        <Image src={getSortIcon(column)} alt='' width={10} height={7} aria-hidden='true' />
+      </button>
+    );
+  };
 
   return (
     <section className={TABLE_STYLES.container} aria-labelledby='transactions-heading'>
