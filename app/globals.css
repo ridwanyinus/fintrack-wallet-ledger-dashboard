@@ -70,6 +70,10 @@
 		-webkit-font-smoothing: antialiased;
 		-moz-osx-font-smoothing: grayscale;
 	}
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
 }
 
 .sr-only {

@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import SummaryCards from '@/components/dashboard/summary-cards';
 import { mockTransactions } from '@/lib/data/mock-data';
 import { formatCurrency, formatDate } from '@/lib/utils/formatters';
-import { cn } from '@/lib/utils/cn';
+import { SortButton } from './sort-button';
 
 type SortColumn = 'date' | 'amount';
 type SortOrder = 'asc' | 'desc';
@@ -14,7 +14,6 @@ const TABLE_STYLES = {
   desktopTable: 'hidden md:block',
   table: 'w-full border-separate border-spacing-x-4',
   headerCell: 'text-left text-xs-custom font-medium text-brick-brown-62/60 py-1',
-  sortButton: 'flex gap-x-2 items-center focus:outline-none focus:ring-2 focus:ring-teal-blue focus:ring-offset-2 rounded-md p-1 -m-1 transition-colors hover:bg-forest-green-9/10',
   bodyCell: 'border-t border-muted-blue-20/20 py-2',
   mobileContainer: 'md:hidden',
   mobileHeader: 'flex justify-between items-center mb-4',
@@ -39,20 +38,18 @@ const COLUMN_CONFIG = {
   type: { label: 'Type', sortable: false, width: 'w-[100px]' },
 } as const;
 
-const TransactionTable = () => {
+export default function TransactionTable() {
   const [sortBy, setSortBy] = useState<SortColumn>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
   const sortedTransactions = useMemo(() => {
     return [...mockTransactions].sort((a, b) => {
       let comparison = 0;
-
       if (sortBy === 'date') {
         comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
       } else if (sortBy === 'amount') {
         comparison = a.amount - b.amount;
       }
-
       return sortOrder === 'asc' ? comparison : -comparison;
     });
   }, [sortBy, sortOrder]);
@@ -66,39 +63,13 @@ const TransactionTable = () => {
     }
   };
 
-  const getSortIcon = (column: SortColumn) => {
-    if (sortBy !== column) {
-      return '/caret-down.svg';
-    }
-    return sortOrder === 'asc' ? '/caret-up-icon.svg' : '/caret-down.svg';
-  };
-
-  const getAriaSort = (column: SortColumn): 'ascending' | 'descending' | 'none' => {
-    if (sortBy !== column) return 'none';
-    return sortOrder === 'asc' ? 'ascending' : 'descending';
+  const getTypeIndicatorClasses = (type: string) => {
+    return `${TABLE_STYLES.typeIndicator.dot} ${type === 'Credit' ? TABLE_STYLES.typeIndicator.credit : TABLE_STYLES.typeIndicator.debit}`;
   };
 
   const formatAmount = (amount: number, type: string) => {
     const formattedAmount = formatCurrency(Math.abs(amount));
     return type === 'Credit' ? formattedAmount : `-${formattedAmount}`;
-  };
-
-  const getTypeIndicatorClasses = (type: string) => {
-    return `${TABLE_STYLES.typeIndicator.dot} ${type === 'Credit' ? TABLE_STYLES.typeIndicator.credit : TABLE_STYLES.typeIndicator.debit}`;
-  };
-
-  const SortButton = ({ column, children, className = '' }: { column: SortColumn; children: React.ReactNode; className?: string }) => {
-    const isActive = sortBy === column;
-    return (
-      <button
-        type='button'
-        onClick={() => handleSort(column)}
-        className={cn(TABLE_STYLES.sortButton, className, !isActive && 'focus:ring-0 focus:outline-none')}
-        aria-label={`Sort by ${column} ${isActive && sortOrder === 'asc' ? 'descending' : 'ascending'}`}>
-        {children}
-        <Image src={getSortIcon(column)} alt='' width={10} height={7} aria-hidden='true' />
-      </button>
-    );
   };
 
   return (
@@ -107,12 +78,11 @@ const TransactionTable = () => {
 
       {/* Desktop Table */}
       <div className={TABLE_STYLES.desktopTable}>
-        <table className={TABLE_STYLES.table} role='table' aria-label='Transactions data table'>
-          <caption className='sr-only'>List of wallet transactions with date, remark, amount, currency, and type. Date and Amount columns are sortable.</caption>
+        <table className={TABLE_STYLES.table} role='table'>
           <thead>
             <tr role='row'>
-              <th className={`${TABLE_STYLES.headerCell} ${COLUMN_CONFIG.date.width}`} scope='col' aria-sort={getAriaSort('date')}>
-                <SortButton column='date'>{COLUMN_CONFIG.date.label}</SortButton>
+              <th className={`${TABLE_STYLES.headerCell} ${COLUMN_CONFIG.date.width}`} scope='col'>
+                <SortButton column='date' label={COLUMN_CONFIG.date.label} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
               </th>
               <th className={`${TABLE_STYLES.headerCell} ${COLUMN_CONFIG.remark.width}`} scope='col'>
                 <div className='flex gap-x-2 items-center'>
@@ -120,8 +90,8 @@ const TransactionTable = () => {
                   <Image src='/caret-down.svg' alt='' width={10} height={7} aria-hidden='true' />
                 </div>
               </th>
-              <th className={`${TABLE_STYLES.headerCell} ${COLUMN_CONFIG.amount.width}`} scope='col' aria-sort={getAriaSort('amount')}>
-                <SortButton column='amount'>{COLUMN_CONFIG.amount.label}</SortButton>
+              <th className={`${TABLE_STYLES.headerCell} ${COLUMN_CONFIG.amount.width}`} scope='col'>
+                <SortButton column='amount' label={COLUMN_CONFIG.amount.label} sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} />
               </th>
               <th className={`${TABLE_STYLES.headerCell} ${COLUMN_CONFIG.currency.width}`} scope='col'>
                 <div className='flex gap-x-2 items-center'>
@@ -139,7 +109,7 @@ const TransactionTable = () => {
           </thead>
           <tbody>
             {sortedTransactions.map((transaction) => (
-              <tr key={transaction.id} role='row'>
+              <tr key={transaction.id}>
                 <td className={TABLE_STYLES.bodyCell}>
                   <time dateTime={transaction.date}>{formatDate(transaction.date)}</time>
                 </td>
@@ -149,7 +119,7 @@ const TransactionTable = () => {
                 </td>
                 <td className={TABLE_STYLES.bodyCell}>{transaction.currency}</td>
                 <td className={`py-4 whitespace-nowrap ${TABLE_STYLES.bodyCell}`}>
-                  <div className={TABLE_STYLES.typeIndicator.container} role='status' aria-label={`Transaction type: ${transaction.type}`}>
+                  <div className={TABLE_STYLES.typeIndicator.container} role='status'>
                     <div className={getTypeIndicatorClasses(transaction.type)} aria-hidden='true' />
                     <span className='text-sm'>{transaction.type}</span>
                   </div>
@@ -163,22 +133,16 @@ const TransactionTable = () => {
       {/* Mobile Cards */}
       <div className={TABLE_STYLES.mobileContainer}>
         <div className={TABLE_STYLES.mobileHeader}>
-          <h3 className={TABLE_STYLES.mobileTitle} id='mobile-transactions-heading'>
-            Recent Transactions
-          </h3>
-          <div className={TABLE_STYLES.mobileSortButtons} role='group' aria-label='Sort options'>
-            <SortButton column='date' className={TABLE_STYLES.mobileSortButton}>
-              Date
-            </SortButton>
-            <SortButton column='amount' className={TABLE_STYLES.mobileSortButton}>
-              Amount
-            </SortButton>
+          <h3 className={TABLE_STYLES.mobileTitle}>Recent Transactions</h3>
+          <div className={TABLE_STYLES.mobileSortButtons} role='group'>
+            <SortButton column='date' label='Date' sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} className={TABLE_STYLES.mobileSortButton} />
+            <SortButton column='amount' label='Amount' sortBy={sortBy} sortOrder={sortOrder} onSort={handleSort} className={TABLE_STYLES.mobileSortButton} />
           </div>
         </div>
 
-        <div className={TABLE_STYLES.mobileList} role='list' aria-labelledby='mobile-transactions-heading'>
+        <div className={TABLE_STYLES.mobileList}>
           {sortedTransactions.map((transaction) => (
-            <article key={transaction.id} className={TABLE_STYLES.mobileCard} role='listitem'>
+            <article key={transaction.id} className={TABLE_STYLES.mobileCard}>
               <div className='flex justify-between items-start mb-2'>
                 <div className='flex-1'>
                   <h4 className='font-medium mb-1'>{transaction.remark}</h4>
@@ -193,8 +157,8 @@ const TransactionTable = () => {
               </div>
 
               <div className='flex justify-between items-center mt-3'>
-                <div className={TABLE_STYLES.typeIndicator.container} role='status' aria-label={`Transaction type: ${transaction.type}`}>
-                  <div className={getTypeIndicatorClasses(transaction.type)} aria-hidden='true' />
+                <div className={TABLE_STYLES.typeIndicator.container}>
+                  <div className={getTypeIndicatorClasses(transaction.type)} />
                   <span className='text-sm'>{transaction.type}</span>
                 </div>
               </div>
@@ -204,6 +168,4 @@ const TransactionTable = () => {
       </div>
     </section>
   );
-};
-
-export default TransactionTable;
+}
